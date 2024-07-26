@@ -7,119 +7,265 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return const SignUp();
+  }
+}
+
+class SignUp extends StatefulWidget {
+  const SignUp({super.key});
+
+  @override
+  State<SignUp> createState() => _SignUpState();
+}
+
+class _SignUpState extends State<SignUp> {
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final formkey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+    formkey.currentState!.validate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+      home: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Form(
+            key: formkey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Emergency Service",
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 40,
+                      color: Color.fromARGB(255, 220, 24, 10)),
+                ),
+                SizedBox(
+                  height: 40,
+                ),
+                Text(
+                  "SignUp",
+                  style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 40,
+                      color: Color.fromARGB(255, 220, 24, 10)),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                CustomForm(hinttext: "Name", controller: nameController),
+                SizedBox(
+                  height: 15,
+                ),
+                CustomForm(hinttext: "Email", controller: emailController),
+                SizedBox(
+                  height: 15,
+                ),
+                CustomForm(
+                    hinttext: "password", controller: passwordController),
+                SizedBox(
+                  height: 20,
+                ),
+                SignupLoginButton(buttonname: "SignUp", ontap: () {}),
+                RichText(
+                  text: TextSpan(
+                    text: "Already have an account? ",
+                    style: Theme.of(context).textTheme.titleMedium,
+                    children: [
+                      WidgetSpan(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => LogIn()),
+                            );
+                          },
+                          child: Text(
+                            "LogIn",
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+class LogIn extends StatefulWidget {
+  const LogIn({
+    super.key,
+  });
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  State<LogIn> createState() => _LogInState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+class _LogInState extends State<LogIn> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final formkey = GlobalKey<FormState>();
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+      appBar: AppBar(),
+      body: Padding(
+        padding: EdgeInsets.all(12.0),
+        child: Form(
+          key: formkey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "LogIn",
+                style: TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 38,
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              CustomForm(controller: emailController, hinttext: "Email"),
+              SizedBox(
+                height: 15,
+              ),
+              CustomForm(
+                controller: passwordController,
+                hinttext: "Password",
+                isObscure: true,
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              SignupLoginButton(
+                buttonname: "LOGIN",
+                ontap: () {},
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              RichText(
+                  text: TextSpan(
+                      text: "Don't have an account? ",
+                      style: Theme.of(context).textTheme.titleMedium,
+                      children: [
+                    TextSpan(
+                        text: "LogIn",
+                        style: TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.bold))
+                  ]))
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class CustomForm extends StatelessWidget {
+  const CustomForm(
+      {super.key,
+      required this.hinttext,
+      required this.controller,
+      this.isObscure = false});
+
+  final TextEditingController controller;
+  final String hinttext;
+  final bool isObscure;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      controller: controller,
+      obscureText: isObscure,
+      validator: (value) {
+        if (value!.trim().isEmpty) {
+          return "$hinttext is required";
+        }
+        return null;
+      },
+      obscuringCharacter: "*",
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.all(10),
+        hintText: hinttext,
+        enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 3,
+              color: Color.fromARGB(255, 186, 18, 6),
+            ),
+            borderRadius: BorderRadius.circular(8)),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              width: 3,
+              color: Colors.black,
+            ),
+            borderRadius: BorderRadius.circular(8)),
+      ),
+    );
+  }
+}
+
+class SignupLoginButton extends StatelessWidget {
+  const SignupLoginButton(
+      {super.key, required this.buttonname, required this.ontap});
+  final String buttonname;
+  final VoidCallback ontap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(7),
+          gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.red,
+                Color.fromARGB(255, 220, 24, 10),
+                const Color.fromARGB(255, 173, 16, 5),
+              ])),
+      child: ElevatedButton(
+        onPressed: ontap,
+        style: ElevatedButton.styleFrom(
+            fixedSize: Size(395, 55),
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent),
+        child: Text(
+          buttonname,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
     );
   }
 }
