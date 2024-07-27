@@ -9,6 +9,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
@@ -224,11 +225,88 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () {}, child: Text("SOS")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SosScreen(),
+                    ),
+                  );
+                },
+                child: Text("SOS")),
             SizedBox(
               height: 15,
             ),
-            ElevatedButton(onPressed: () {}, child: Text("alert"))
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AlertScreen(),
+                    ),
+                  );
+                },
+                child: Text("alert"))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AlertScreen extends StatefulWidget {
+  const AlertScreen({super.key});
+
+  @override
+  State<AlertScreen> createState() => _AlertScreenState();
+}
+
+class _AlertScreenState extends State<AlertScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SosScreen(),
+                  ),
+                );
+              },
+              icon: Icon(Icons.volunteer_activism))
+        ],
+      ),
+      body: Center(
+        child: Column(
+          children: [
+            Text("all contacts"),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class SosScreen extends StatefulWidget {
+  const SosScreen({super.key});
+
+  @override
+  State<SosScreen> createState() => _SosScreenState();
+}
+
+class _SosScreenState extends State<SosScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(),
+      body: Center(
+        child: Column(
+          children: [
+            Text("map"),
           ],
         ),
       ),
