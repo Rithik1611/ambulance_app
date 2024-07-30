@@ -1,5 +1,11 @@
+import 'dart:math';
+
+import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sensors_plus/sensors_plus.dart';
+import 'package:sms_advanced/sms_advanced.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -255,42 +261,6 @@ class _MainScreenState extends State<MainScreen> {
   }
 }
 
-class AlertScreen extends StatefulWidget {
-  const AlertScreen({super.key});
-
-  @override
-  State<AlertScreen> createState() => _AlertScreenState();
-}
-
-class _AlertScreenState extends State<AlertScreen> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SosScreen(),
-                  ),
-                );
-              },
-              icon: Icon(Icons.volunteer_activism))
-        ],
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            Text("all contacts"),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class SosScreen extends StatefulWidget {
   const SosScreen({super.key});
 
@@ -310,6 +280,185 @@ class _SosScreenState extends State<SosScreen> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class AlertScreen extends StatefulWidget {
+  @override
+  _AlertScreenState createState() => _AlertScreenState();
+}
+
+class _AlertScreenState extends State<AlertScreen> {
+  List<Contact> contacts = [];
+  List<Contact> favoriteContacts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    requestPermissionAndFetchContacts();
+  }
+
+  Future<void> requestPermissionAndFetchContacts() async {
+    var status = await Permission.contacts.status;
+    if (status.isDenied) {
+      if (await Permission.contacts.request().isGranted) {
+        fetchContacts();
+      } else {
+        print("Permission denied");
+      }
+    } else if (status.isGranted) {
+      fetchContacts();
+    }
+  }
+
+  Future<void> fetchContacts() async {
+    Iterable<Contact> fetchedContacts = await ContactsService.getContacts();
+    setState(() {
+      contacts = fetchedContacts.toList();
+    });
+  }
+
+  void toggleFavorite(Contact contact) {
+    setState(() {
+      if (favoriteContacts.contains(contact)) {
+        favoriteContacts.remove(contact);
+      } else {
+        favoriteContacts.add(contact);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Contact Access Demo"),
+      ),
+      body: contacts.isEmpty
+          ? Center(child: CircularProgressIndicator())
+          : ListView.builder(
+              itemCount: contacts.length,
+              itemBuilder: (context, index) {
+                Contact contact = contacts[index];
+                bool isFavorite = favoriteContacts.contains(contact);
+                return ListTile(
+                  title: Text(contact.displayName ?? 'No Name'),
+                  trailing: IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.star : Icons.star_border,
+                      color: isFavorite ? Colors.yellow : null,
+                    ),
+                    onPressed: () => toggleFavorite(contact),
+                  ),
+                );
+              },
+            ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.star),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  FavoriteContactsScreen(favoriteContacts: favoriteContacts),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class FavoriteContactsScreen extends StatefulWidget {
+  final List<Contact> favoriteContacts;
+
+  FavoriteContactsScreen({required this.favoriteContacts});
+
+  @override
+  _FavoriteContactsScreenState createState() => _FavoriteContactsScreenState();
+}
+
+class _FavoriteContactsScreenState extends State<FavoriteContactsScreen> {
+  static const double shakeThresholdGravity = 2.7;
+  static const int shakeSlopTimeMs = 500;
+  int lastShakeTimestamp = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      double gX = event.x / 9.81;
+      double gY = event.y / 9.81;
+      double gZ = event.z / 9.81;
+
+      double gForce = sqrt(gX * gX + gY * gY + gZ * gZ);
+
+      if (gForce > shakeThresholdGravity) {
+        final now = DateTime.now().millisecondsSinceEpoch;
+        if (lastShakeTimestamp + shakeSlopTimeMs > now) {
+          return;
+        }
+
+        lastShakeTimestamp = now;
+        onShake();
+      }
+    });
+  }
+
+  void onShake() {
+    sendSMS();
+  }
+
+  void sendSMS() async {
+    String message = "Hello from your favorite contact app!";
+    List<String> recipients = widget.favoriteContacts
+        .where((contact) => contact.phones!.isNotEmpty)
+        .map((contact) => contact.phones!.first.value!)
+        .toList();
+
+    if (recipients.isNotEmpty) {
+      try {
+        SmsSender sender = SmsSender();
+        for (String recipient in recipients) {
+          SmsMessage sms = SmsMessage(recipient, message);
+          sender.sendSms(sms);
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("SMS sent successfully"),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      } catch (error) {
+        print("Error sending SMS: $error");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Failed to send message."),
+            duration: Duration(seconds: 1),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Favorite Contacts"),
+      ),
+      body: widget.favoriteContacts.isEmpty
+          ? Center(child: Text("No favorite contacts selected."))
+          : ListView.builder(
+              itemCount: widget.favoriteContacts.length,
+              itemBuilder: (context, index) {
+                Contact contact = widget.favoriteContacts[index];
+                return ListTile(
+                  title: Text(contact.displayName ?? 'No Name'),
+                );
+              },
+            ),
     );
   }
 }
