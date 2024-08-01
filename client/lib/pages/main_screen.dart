@@ -1,3 +1,4 @@
+import 'package:client/pages/alert_fav.dart';
 import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
@@ -15,11 +16,15 @@ class _MainScreenState extends State<MainScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            ElevatedButton(onPressed: () {}, child: Text("SOS")),
-            SizedBox(
+            ElevatedButton(onPressed: () {}, child: const Text("SOS")),
+            const SizedBox(
               height: 15,
             ),
-            ElevatedButton(onPressed: () {}, child: Text("alert"))
+            ElevatedButton(onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AlertFav()),
+                  );}, child: const Text("alert"))
           ],
         ),
       ),
