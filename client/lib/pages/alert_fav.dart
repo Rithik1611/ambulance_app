@@ -1,3 +1,4 @@
+import 'package:client/pages/clist.dart';
 import 'package:flutter/material.dart';
 
 class AlertFav extends StatefulWidget{
@@ -11,7 +12,8 @@ class _AlertFavState extends State<AlertFav>{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(title:const Text('Favourite'),
-      backgroundColor: Colors.red,),
+      backgroundColor: Colors.red,)
+      ,
       body: Stack(
         children: [
           // Your body content here,
@@ -20,7 +22,12 @@ class _AlertFavState extends State<AlertFav>{
             child: Padding(
               padding: const EdgeInsets.all(50.0),
               child: FloatingActionButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => MyApp()),
+                  );
+                },
                 child: const Icon(Icons.add),
                 backgroundColor: Colors.red,
               ),
